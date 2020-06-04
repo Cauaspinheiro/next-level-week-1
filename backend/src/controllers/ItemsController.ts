@@ -8,7 +8,7 @@ export default function ItemsController() {
     const serializedItems = items.map((item) => {
       return {
         ...item,
-        image_url: `http://localhost:3001/uploads/${item.image}`,
+        image_url: `http://192.168.100.25:3001/uploads/${item.image}`,
       };
     });
 
