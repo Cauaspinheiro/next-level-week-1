@@ -9,6 +9,7 @@ import { Map, TileLayer, Marker } from 'react-leaflet';
 import api from '../../services/api';
 import axios from 'axios';
 import { LeafletMouseEvent } from 'leaflet';
+import Dropzone from '../../components/Dropzone';
 
 interface Item {
   id: number;
@@ -46,6 +47,7 @@ export default function CreatePoint() {
     email: '',
     whatsapp: '',
   });
+  const [selectedFile, setSelectedFile] = useState<File>();
 
   const history = useHistory();
 
@@ -128,16 +130,20 @@ export default function CreatePoint() {
 
     const { name, email, whatsapp } = formData;
 
-    const data = {
-      name,
-      email,
-      whatsapp,
-      uf: selectedUF,
-      city: selectedCity,
-      latitude: selectedPosition[0],
-      longitude: selectedPosition[1],
-      items: selectedItems,
-    };
+    const data = new FormData();
+
+    data.append('name', name);
+    data.append('email', email);
+    data.append('whatsapp', whatsapp);
+    data.append('uf', selectedUF);
+    data.append('city', selectedCity);
+    data.append('latitude', String(selectedPosition[0]));
+    data.append('longitude', String(selectedPosition[1]));
+    data.append('items', items.join(', '));
+
+    if (selectedFile) {
+      data.append('image', selectedFile);
+    }
 
     await api.post('/points', data);
 
@@ -159,6 +165,8 @@ export default function CreatePoint() {
 
       <form onSubmit={handleSubmit}>
         <h1>Cadastro de ponto de coleta</h1>
+
+        <Dropzone onFileUploaded={setSelectedFile} />
 
         <fieldset>
           <legend>

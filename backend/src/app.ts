@@ -2,6 +2,7 @@ import express from 'express';
 import routes from './routes/routes';
 import path from 'path';
 import cors from 'cors';
+import { errors } from 'celebrate';
 
 export default function App() {
   const server = express();
@@ -17,6 +18,7 @@ export default function App() {
       express.static(path.resolve(__dirname, '..', 'uploads'))
     );
     server.use(routes);
+    server.use(errors());
   }
 
   middlewares();

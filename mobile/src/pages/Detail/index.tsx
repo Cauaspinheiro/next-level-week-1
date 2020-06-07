@@ -23,6 +23,7 @@ interface Point {
   image: string;
   name: string;
   email: string;
+  image_url: string;
   whatsapp: string;
   city: string;
   uf: string;
@@ -83,7 +84,7 @@ export default function Detail() {
         <Image
           style={styles.pointImage}
           source={{
-            uri: point.image,
+            uri: point.image_url,
           }}
         />
 

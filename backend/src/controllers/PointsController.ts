@@ -17,7 +17,14 @@ export default function PointsController() {
       .distinct()
       .select('points.*');
 
-    return res.status(200).json({ points });
+    const serializedPoints = points.map((point) => {
+      return {
+        ...point,
+        image_url: `http://192.168.100.25:3001/uploads/${point.image}`,
+      };
+    });
+
+    return res.status(200).json({ points: serializedPoints });
   }
 
   async function show(req: Request, res: Response) {
@@ -34,7 +41,12 @@ export default function PointsController() {
       .where('points_items.point_id', id)
       .select('items.title');
 
-    return res.status(200).json({ point: { ...point, items } });
+    const serializedPoint = {
+      ...point,
+      image_url: `http://192.168.100.25:3001/uploads/${point.image}`,
+    };
+
+    return res.status(200).json({ point: { serializedPoint, items } });
   }
 
   async function create(req: Request, res: Response) {
@@ -52,8 +64,7 @@ export default function PointsController() {
     const trx = await knex.transaction();
 
     const [point_id] = await trx('points').insert({
-      image:
-        'https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=600&q=60',
+      image: req.file.filename,
       name,
       email,
       whatsapp,
@@ -63,12 +74,15 @@ export default function PointsController() {
       uf,
     });
 
-    const pointItems = items.map((item_id: number) => {
-      return {
-        item_id,
-        point_id,
-      };
-    });
+    const pointItems = items
+      .split(',')
+      .map((item: string) => Number(item.trim()))
+      .map((item_id: number) => {
+        return {
+          item_id,
+          point_id,
+        };
+      });
 
     await trx('points_items').insert(pointItems);
 
